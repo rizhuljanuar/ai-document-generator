@@ -79,13 +79,20 @@ ai-document-generator/
 
 - `GET /` - Health check
 - `POST /api/generate-docs` - Generate documentation
+- `GET /api/docs/history` - Get documentation history
+- `GET /api/docs/:id` - Get specific documentation
 
 ## Features
 
-- ✅ Multi-language code support (JavaScript, Python, Java, C++, TypeScript)
+- ✅ Multi-language code support (JavaScript, Python, Java, C++, TypeScript, PHP, Golang, Rust)
 - ✅ Multiple documentation styles (JSDoc, Inline Comments, Markdown)
 - ✅ Split-view comparison
 - ✅ Copy and download functionality
+- ✅ File upload support
 - ✅ Responsive design
+- ✅ API integration with Gemini AI
+- ✅ Database persistence (Supabase)
+- ✅ Error handling and validation
+- ✅ Repository pattern implementation
 - ✅ User authentication (future)
 - ✅ History tracking (future)

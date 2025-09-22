@@ -7,9 +7,10 @@
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist",
     "start": "bun dist/index.js",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "drizzle-kit up:pg",
     "db:studio": "drizzle-kit studio",
+    "db:setup": "bun scripts/setup-database.ts",
     "test": "bun test"
   },
   "dependencies": {
@@ -17,7 +18,9 @@
     "@elysiajs/cors": "^1.0.0",
     "drizzle-orm": "^0.29.0",
     "@supabase/supabase-js": "^2.39.0",
-    "zod": "^3.22.0"
+    "zod": "^3.22.0",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "drizzle-kit": "^0.20.0",
