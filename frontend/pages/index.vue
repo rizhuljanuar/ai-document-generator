@@ -50,7 +50,7 @@
                 type="file"
                 @change="handleFileUpload"
                 class="hidden"
-                accept=".js,.py,.java,.cpp,.ts"
+                accept=".js,.py,.java,.cpp,.ts,.php,.go,.rs"
               />
               <p v-if="uploadedFile" class="text-sm text-gray-400 mt-1">
                 Uploaded: {{ uploadedFile.name }}
@@ -167,7 +167,10 @@ const languageOptions = [
   { label: 'Python', value: 'python' },
   { label: 'Java', value: 'java' },
   { label: 'C++', value: 'cpp' },
-  { label: 'TypeScript', value: 'typescript' }
+  { label: 'TypeScript', value: 'typescript' },
+  { label: 'PHP', value: 'php' },
+  { label: 'Golang', value: 'golang' },
+  { label: 'Rust', value: 'rust' }
 ]
 
 const styleOptions = [
