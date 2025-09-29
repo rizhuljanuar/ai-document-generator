@@ -9,9 +9,9 @@ const port = process.env.PORT || 3001
 
 const startServer = async () => {
   try {
-    // Initialize database
-    await initializeDatabase()
+    console.log('⚠️  Skipping database initialization for testing')
 
+    // Initialize repository without database connection
     const repository = new DocumentationRepository()
     const service = new DocumentationService(repository)
 

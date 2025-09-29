@@ -9,6 +9,7 @@
     "start": "bun dist/index.js",
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit up:pg",
+    "db:push": "drizzle-kit push:pg",
     "db:studio": "drizzle-kit studio",
     "db:setup": "bun scripts/setup-database.ts",
     "test": "bun test"

@@ -152,6 +152,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+
 // State
 const code = ref('')
 const documentation = ref('')
@@ -215,9 +217,18 @@ const generateDocumentation = async () => {
     })
 
     documentation.value = response.documentation || 'No documentation generated.'
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating documentation:', error)
-    documentation.value = 'Error generating documentation. Please try again.'
+
+    if (error.statusCode === 429) {
+      documentation.value = '⚠️ AI service quota exceeded. Please try again later.'
+    } else if (error.statusCode === 401) {
+      documentation.value = '❌ AI service authentication failed. Please check API key.'
+    } else if (error.statusCode === 404) {
+      documentation.value = '❌ Backend service not found. Please check server status.'
+    } else {
+      documentation.value = '❌ Error generating documentation. Please try again.'
+    }
   } finally {
     isLoading.value = false
   }
@@ -248,4 +259,5 @@ const downloadDocumentation = () => {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
+
 </script>

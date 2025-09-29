@@ -8,7 +8,7 @@ export const generateDocsSchema = z.object({
   style: z.enum(['jsdoc', 'inline', 'markdown'], {
     errorMap: () => ({ message: 'Please select a valid documentation style' })
   }),
-  userId: z.string().optional()
+  userId: z.string().nullable().optional()
 })
 
 export type GenerateDocsInput = z.infer<typeof generateDocsSchema>

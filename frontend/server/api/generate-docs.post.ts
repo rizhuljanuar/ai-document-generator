@@ -1,3 +1,5 @@
+import { createError } from 'h3'
+
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
@@ -39,6 +41,23 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: any) {
     console.error('Error in generate-docs API:', error)
+
+    // Check for quota exceeded error (OpenAI specific)
+    if (error.response?.data?.error?.code === 429) {
+      throw createError({
+        statusCode: 429,
+        statusMessage: 'AI service quota exceeded. Please try again later.'
+      })
+    }
+
+    // Check for OpenAI authentication error
+    if (error.response?.data?.error?.type === 'authentication_error') {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'AI service authentication failed. Please check API key.'
+      })
+    }
+
     throw createError({
       statusCode: error.statusCode || 500,
       statusMessage: error.statusMessage || 'Internal server error'

@@ -23,3 +23,7 @@ export interface DocumentationHistory {
 export interface AIServiceResponse {
   documentation: string
 }
+
+export interface OpenAIServiceResponse {
+  documentation: string
+}
