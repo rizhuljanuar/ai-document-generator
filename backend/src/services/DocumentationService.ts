@@ -31,75 +31,51 @@ export class DocumentationService {
       success: false
     }
 
-    try {
-      // Validate input
-      const validatedInput = this.validateInput(request)
+    // Validate input
+    const validatedInput = this.validateInput(request)
 
-      // Save documentation record to database
-      const savedDoc = await this.repository.saveDocumentation(validatedInput)
+    // Save documentation record to database
+    const savedDoc = await this.repository.saveDocumentation(validatedInput)
 
-      try {
-        // Generate documentation using AI
-        const aiResponse = await this.aiService.generateDocumentation(
-          validatedInput.code,
-          validatedInput.language,
-          validatedInput.style
-        )
+    // Generate documentation using AI
+    const aiResponse = await this.aiService.generateDocumentation(
+      validatedInput.code,
+      validatedInput.language,
+      validatedInput.style
+    )
 
-        // Calculate generation time
-        generationMetrics.generationTime = Date.now() - startTime
-        generationMetrics.success = true
+    // Calculate generation time
+    generationMetrics.generationTime = Date.now() - startTime
+    generationMetrics.success = true
 
-        // Update the generated documentation in database
-        await this.repository.updateDocumentation(savedDoc.id, aiResponse.documentation)
+    // Update the generated documentation in database
+    await this.repository.updateDocumentation(savedDoc.id, aiResponse.documentation)
 
-        // Log generation metrics
-        console.log(`✅ Generated documentation for ${validatedInput.language} in ${generationMetrics.generationTime}ms`)
+    // Log generation metrics
+    console.log(`✅ Generated documentation for ${validatedInput.language} in ${generationMetrics.generationTime}ms`)
 
-        return {
-          success: true,
-          documentation: aiResponse.documentation
-        }
-      } catch (error) {
-        // Calculate generation time even for failures
-        generationMetrics.generationTime = Date.now() - startTime
-        generationMetrics.success = false
-
-        // If AI generation fails, save the error but don't fail the request
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        console.error('❌ AI generation failed:', errorMessage)
-        throw new Error(`Failed to generate documentation: ${errorMessage}`)
-      }
-    } catch (error) {
-      console.error('Error in DocumentationService:', error)
-      throw error
+    return {
+      success: true,
+      documentation: aiResponse.documentation
     }
   }
 
   async testAIService(): Promise<{ connected: boolean; model: string; responseTime?: number }> {
-    try {
-      console.log('🔍 Testing AI service connection...')
-      const startTime = Date.now()
+    console.log('🔍 Testing AI service connection...')
+    const startTime = Date.now()
 
-      const isConnected = await this.aiService.testConnection()
-      const responseTime = isConnected ? Date.now() - startTime : undefined
+    const isConnected = await this.aiService.testConnection()
+    const responseTime = isConnected ? Date.now() - startTime : undefined
 
-      if (isConnected) {
-        console.log('✅ AI service connection successful')
-        return {
-          connected: true,
-          model: 'gpt-3.5-turbo',
-          responseTime
-        }
-      } else {
-        console.error('❌ AI service connection failed')
-        return {
-          connected: false,
-          model: 'gpt-3.5-turbo'
-        }
+    if (isConnected) {
+      console.log('✅ AI service connection successful')
+      return {
+        connected: true,
+        model: 'gpt-3.5-turbo',
+        responseTime
       }
-    } catch (error) {
-      console.error('❌ AI service test failed:', error)
+    } else {
+      console.error('❌ AI service connection failed')
       return {
         connected: false,
         model: 'gpt-3.5-turbo'
@@ -120,38 +96,28 @@ export class DocumentationService {
   }
 
   async getDocumentationHistory(userId?: string, limit = 20): Promise<any[]> {
-    try {
-      const history = await this.repository.getDocumentationHistory(userId, limit)
+    const history = await this.repository.getDocumentationHistory(userId, limit)
 
-      // Add metadata for each entry
-      return history.map(doc => ({
-        ...doc,
-        generatedAt: doc.created_at,
-        codeLength: doc.original_code.length,
-        docsLength: doc.generated_docs.length
-      }))
-    } catch (error) {
-      console.error('Error fetching documentation history:', error)
-      throw new Error('Failed to fetch documentation history')
-    }
+    // Add metadata for each entry
+    return history.map(doc => ({
+      ...doc,
+      generatedAt: doc.created_at,
+      codeLength: doc.original_code.length,
+      docsLength: doc.generated_docs.length
+    }))
   }
 
   async getDocumentationById(id: string): Promise<any> {
-    try {
-      const doc = await this.repository.getDocumentationById(id)
-      if (!doc) {
-        throw new Error('Documentation not found')
-      }
+    const doc = await this.repository.getDocumentationById(id)
+    if (!doc) {
+      throw new Error('Documentation not found')
+    }
 
-      return {
-        ...doc,
-        generatedAt: doc.created_at,
-        codeLength: doc.original_code.length,
-        docsLength: doc.generated_docs.length
-      }
-    } catch (error) {
-      console.error('Error fetching documentation:', error)
-      throw error
+    return {
+      ...doc,
+      generatedAt: doc.created_at,
+      codeLength: doc.original_code.length,
+      docsLength: doc.generated_docs.length
     }
   }
 
@@ -162,34 +128,28 @@ export class DocumentationService {
     languagesGenerated: string[]
     stylesGenerated: string[]
   }> {
-    try {
-      const allDocs = await this.repository.getDocumentationHistory(undefined, 1000)
+    const allDocs = await this.repository.getDocumentationHistory(undefined, 1000)
 
-      const totalGenerations = allDocs.length
-      const successfulGenerations = allDocs.filter(doc => !doc.generated_docs.startsWith('Error')).length
-      const failedGenerations = totalGenerations - successfulGenerations
+    const totalGenerations = allDocs.length
+    const successfulGenerations = allDocs.filter(doc => !doc.generated_docs.startsWith('Error')).length
 
-      const generationTimes = allDocs
-        .filter(doc => doc.created_at)
-        .map(doc => doc.created_at.getTime())
+    const generationTimes = allDocs
+      .filter(doc => doc.created_at)
+      .map(doc => doc.created_at.getTime())
 
-      const averageGenerationTime = generationTimes.length > 0
-        ? generationTimes.reduce((sum, time) => sum + time, 0) / generationTimes.length
-        : 0
+    const averageGenerationTime = generationTimes.length > 0
+      ? generationTimes.reduce((sum, time) => sum + time, 0) / generationTimes.length
+      : 0
 
-      const languagesGenerated = [...new Set(allDocs.map(doc => doc.language))]
-      const stylesGenerated = [...new Set(allDocs.map(doc => doc.style))]
+    const languagesGenerated = [...new Set(allDocs.map(doc => doc.language))]
+    const stylesGenerated = [...new Set(allDocs.map(doc => doc.style))]
 
-      return {
-        totalGenerations,
-        successfulGenerations,
-        averageGenerationTime,
-        languagesGenerated,
-        stylesGenerated
-      }
-    } catch (error) {
-      console.error('Error fetching generation stats:', error)
-      throw new Error('Failed to fetch generation statistics')
+    return {
+      totalGenerations,
+      successfulGenerations,
+      averageGenerationTime,
+      languagesGenerated,
+      stylesGenerated
     }
   }
 }

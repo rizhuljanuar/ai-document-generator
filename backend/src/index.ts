@@ -1,6 +1,7 @@
 import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
-import { DocumentationController } from './controllers/DocumentationController'
+import { createHealthRoutes, createDocumentationRoutes } from './routes'
+import { createDocumentationController } from './controllers/DocumentationController'
 import { DocumentationService } from './services/DocumentationService'
 import { DocumentationRepository } from './repositories/DocumentationRepository'
 import { initializeDatabase } from './database/init'
@@ -22,7 +23,9 @@ const startServer = async () => {
         timestamp: new Date().toISOString()
       }))
       .group('/api', (app) =>
-        app.use(DocumentationController(service))
+        app
+          .use(createHealthRoutes(service))
+          .use(createDocumentationRoutes(service))
       )
       .listen({ port })
 

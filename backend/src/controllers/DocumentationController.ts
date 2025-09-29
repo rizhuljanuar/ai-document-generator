@@ -1,42 +1,24 @@
-import { Elysia } from 'elysia'
 import { DocumentationService } from '../services/DocumentationService'
-import { GenerateDocsRequest, GenerateDocsResponse } from '../types'
+import { GenerateDocsRequest } from '../types'
 
 export function DocumentationController(service: DocumentationService) {
-  return new Elysia()
-    .get('/health', async () => {
+  return {
+    generateDocs: async ({ body, set }) => {
       try {
-        const aiTest = await service.testAIService()
-        return {
-          success: true,
-          status: 'healthy',
-          timestamp: new Date().toISOString(),
-          aiService: aiTest,
-          database: 'connected'
-        }
-      } catch (error) {
-        return {
-          success: false,
-          status: 'unhealthy',
-          timestamp: new Date().toISOString(),
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      }
-    })
-    .post('/generate-docs', async ({ body }) => {
-      try {
-        const result: GenerateDocsResponse = await service.generateDocumentation(body)
+        const result = await service.generateDocumentation(body as GenerateDocsRequest)
         return result
       } catch (error) {
-        console.error('Error in DocumentationController:', error)
+        console.error('Error in generate docs handler:', error)
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        set.status = 500
         return {
           success: false,
           documentation: `Error: ${errorMessage}`
         }
       }
-    })
-    .get('/docs/history', async ({ query }) => {
+    },
+
+    getDocumentationHistory: async ({ query, set }) => {
       try {
         const userId = query.userId ? String(query.userId) : undefined
         const limit = query.limit ? parseInt(String(query.limit)) : 20
@@ -44,33 +26,40 @@ export function DocumentationController(service: DocumentationService) {
         return { success: true, history }
       } catch (error) {
         console.error('Error fetching documentation history:', error)
+        set.status = 500
         return { success: false, error: 'Failed to fetch documentation history' }
       }
-    })
-    .get('/docs/:id', async ({ params }) => {
+    },
+
+    getDocumentationById: async ({ params, set }) => {
       try {
         const documentation = await service.getDocumentationById(String(params.id))
         return { success: true, documentation }
       } catch (error) {
         console.error('Error fetching documentation:', error)
+        set.status = 404
         return { success: false, error: 'Documentation not found' }
       }
-    })
-    .get('/stats', async () => {
+    },
+
+    getStats: async ({ set }) => {
       try {
         const stats = await service.getGenerationStats()
         return { success: true, stats }
       } catch (error) {
         console.error('Error fetching stats:', error)
+        set.status = 500
         return { success: false, error: 'Failed to fetch statistics' }
       }
-    })
-    .get('/test-ai', async () => {
+    },
+
+    testAI: async ({ set }) => {
       try {
         const result = await service.testAIService()
         return { success: true, ...result }
       } catch (error) {
         console.error('Error testing AI service:', error)
+        set.status = 500
         return {
           success: false,
           connected: false,
@@ -78,5 +67,6 @@ export function DocumentationController(service: DocumentationService) {
           error: error instanceof Error ? error.message : 'Unknown error'
         }
       }
-    })
+    }
+  }
 }
