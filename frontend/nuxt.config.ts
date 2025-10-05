@@ -7,6 +7,10 @@ export default defineNuxtConfig({
       apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3001'
     }
   },
+  components: {
+    dirs: ['~/components'],
+    global: true
+  },
   ui: {
     icons: ['heroicons']
   }
